@@ -1,1 +1,526 @@
 # ball
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>台球比赛记录系统</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            min-height: 100vh;
+            color: #fff;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .section {
+            background: rgba(255,255,255,0.05);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 25px;
+            backdrop-filter: blur(10px);
+        }
+
+        .section-title {
+            font-size: 1.3em;
+            margin-bottom: 20px;
+            color: #00d4aa;
+            border-bottom: 2px solid #00d4aa;
+            padding-bottom: 10px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group label {
+            margin-bottom: 5px;
+            font-size: 0.9em;
+            color: #aaa;
+        }
+
+        .form-group input, .form-group select {
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            background: rgba(255,255,255,0.1);
+            color: #fff;
+            font-size: 1em;
+        }
+
+        .form-group input::placeholder {
+            color: #666;
+        }
+
+        .btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #00d4aa 0%, #00a884 100%);
+            color: #fff;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(0,212,170,0.4);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #ff4757 0%, #ee3742 100%);
+            color: #fff;
+        }
+
+        .btn-danger:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(255,71,87,0.4);
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        th, td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        th {
+            background: rgba(0,212,170,0.2);
+            color: #00d4aa;
+            font-weight: 600;
+        }
+
+        tr:hover {
+            background: rgba(255,255,255,0.05);
+        }
+
+        .rank-1 { color: #ffd700; font-weight: bold; }
+        .rank-2 { color: #c0c0c0; font-weight: bold; }
+        .rank-3 { color: #cd7f32; font-weight: bold; }
+
+        .win-rate {
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-weight: bold;
+            display: inline-block;
+        }
+
+        .win-rate-high { background: #00d4aa; color: #000; }
+        .win-rate-mid { background: #ffa502; color: #000; }
+        .win-rate-low { background: #ff4757; color: #fff; }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+
+        .stats-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: rgba(0,212,170,0.1);
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .stat-card h3 {
+            font-size: 2em;
+            color: #00d4aa;
+        }
+
+        .stat-card p {
+            color: #aaa;
+            font-size: 0.9em;
+        }
+
+        .winner-tag {
+            background: #00d4aa;
+            color: #000;
+            padding: 3px 10px;
+            border-radius: 15px;
+            font-size: 0.8em;
+            font-weight: bold;
+        }
+
+        @media (max-width: 768px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            th, td {
+                padding: 10px 5px;
+                font-size: 0.9em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎱 台球比赛记录系统</h1>
+
+        <!-- 添加选手 -->
+        <div class="section">
+            <div class="section-title">添加选手</div>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>选手姓名</label>
+                    <input type="text" id="playerName" placeholder="请输入姓名">
+                </div>
+            </div>
+            <button class="btn btn-primary" onclick="addPlayer()">添加选手</button>
+        </div>
+
+        <!-- 记录比赛 -->
+        <div class="section">
+            <div class="section-title">记录比赛</div>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>选手A</label>
+                    <select id="playerA"></select>
+                </div>
+                <div class="form-group">
+                    <label>选手B</label>
+                    <select id="playerB"></select>
+                </div>
+                <div class="form-group">
+                    <label>比赛类型</label>
+                    <select id="gameType">
+                        <option value="8球">中式8球</option>
+                        <option value="9球">美式9球</option>
+                        <option value="斯诺克">斯诺克</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>获胜者</label>
+                    <select id="winner">
+                        <option value="A">选手A获胜</option>
+                        <option value="B">选手B获胜</option>
+                    </select>
+                </div>
+            </div>
+            <button class="btn btn-primary" onclick="addMatch()">记录比赛</button>
+        </div>
+
+        <!-- 统计概览 -->
+        <div class="section" id="statsSection">
+            <div class="section-title">统计概览</div>
+            <div class="stats-cards" id="statsCards"></div>
+        </div>
+
+        <!-- 排行榜 -->
+        <div class="section">
+            <div class="section-title">🏆 选手排行榜</div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>排名</th>
+                        <th>选手</th>
+                        <th>总场次</th>
+                        <th>胜场</th>
+                        <th>负场</th>
+                        <th>胜率</th>
+                    </tr>
+                </thead>
+                <tbody id="rankingTable"></tbody>
+            </table>
+        </div>
+
+        <!-- 比赛记录 -->
+        <div class="section">
+            <div class="section-title">比赛记录</div>
+            <div class="btn-group" style="margin-bottom: 15px;">
+                <button class="btn btn-danger" onclick="clearAllData()">清空所有数据</button>
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>时间</th>
+                        <th>比赛类型</th>
+                        <th>选手A</th>
+                        <th>选手B</th>
+                        <th>获胜者</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody id="matchesTable"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        // 数据存储
+        let players = JSON.parse(localStorage.getItem('billiardPlayers')) || [];
+        let matches = JSON.parse(localStorage.getItem('billiardMatches')) || [];
+
+        // 初始化
+        function init() {
+            updatePlayerSelects();
+            renderRanking();
+            renderMatches();
+            renderStats();
+        }
+
+        // 添加选手
+        function addPlayer() {
+            const name = document.getElementById('playerName').value.trim();
+            if (!name) {
+                alert('请输入选手姓名');
+                return;
+            }
+            if (players.includes(name)) {
+                alert('该选手已存在');
+                return;
+            }
+            players.push(name);
+            saveData();
+            document.getElementById('playerName').value = '';
+            updatePlayerSelects();
+            renderRanking();
+            alert('选手添加成功！');
+        }
+
+        // 更新选手下拉框
+        function updatePlayerSelects() {
+            const selectA = document.getElementById('playerA');
+            const selectB = document.getElementById('playerB');
+            
+            const options = players.map(p => `<option value="${p}">${p}</option>`).join('');
+            
+            selectA.innerHTML = options;
+            selectB.innerHTML = options;
+            
+            if (players.length >= 2) {
+                selectB.selectedIndex = 1;
+            }
+        }
+
+        // 记录比赛
+        function addMatch() {
+            const playerA = document.getElementById('playerA').value;
+            const playerB = document.getElementById('playerB').value;
+            const gameType = document.getElementById('gameType').value;
+            const winner = document.getElementById('winner').value;
+
+            if (players.length < 2) {
+                alert('请至少添加两名选手');
+                return;
+            }
+            if (playerA === playerB) {
+                alert('选手A和选手B不能相同');
+                return;
+            }
+
+            const match = {
+                id: Date.now(),
+                time: new Date().toLocaleString('zh-CN'),
+                playerA,
+                playerB,
+                gameType,
+                winner: winner === 'A' ? playerA : playerB
+            };
+
+            matches.unshift(match);
+            saveData();
+            renderRanking();
+            renderMatches();
+            renderStats();
+            alert('比赛记录成功！');
+        }
+
+        // 删除比赛
+        function deleteMatch(id) {
+            if (confirm('确定删除这条记录吗？')) {
+                matches = matches.filter(m => m.id !== id);
+                saveData();
+                renderRanking();
+                renderMatches();
+                renderStats();
+            }
+        }
+
+        // 清空所有数据
+        function clearAllData() {
+            if (confirm('确定要清空所有数据吗？此操作不可恢复！')) {
+                players = [];
+                matches = [];
+                saveData();
+                updatePlayerSelects();
+                renderRanking();
+                renderMatches();
+                renderStats();
+            }
+        }
+
+        // 计算统计数据
+        function calculateStats() {
+            const stats = {};
+            players.forEach(p => {
+                stats[p] = { total: 0, wins: 0, losses: 0 };
+            });
+
+            matches.forEach(m => {
+                stats[m.playerA].total++;
+                stats[m.playerB].total++;
+                
+                if (m.winner === m.playerA) {
+                    stats[m.playerA].wins++;
+                    stats[m.playerB].losses++;
+                } else {
+                    stats[m.playerB].wins++;
+                    stats[m.playerA].losses++;
+                }
+            });
+
+            return Object.entries(stats)
+                .filter(([_, s]) => s.total > 0)
+                .map(([name, s]) => ({
+                    name,
+                    ...s,
+                    winRate: s.total > 0 ? (s.wins / s.total * 100).toFixed(1) : 0
+                }))
+                .sort((a, b) => b.winRate - a.winRate || b.wins - a.wins);
+        }
+
+        // 渲染排行榜
+        function renderRanking() {
+            const stats = calculateStats();
+            const tbody = document.getElementById('rankingTable');
+            
+            if (stats.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" class="empty-state">暂无比赛数据</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = stats.map((s, index) => {
+                const rankClass = index === 0 ? 'rank-1' : index === 1 ? 'rank-2' : index === 2 ? 'rank-3' : '';
+                const winRateClass = s.winRate >= 60 ? 'win-rate-high' : s.winRate >= 40 ? 'win-rate-mid' : 'win-rate-low';
+                
+                return `
+                    <tr>
+                        <td class="${rankClass}">${index + 1}</td>
+                        <td>${s.name}</td>
+                        <td>${s.total}</td>
+                        <td>${s.wins}</td>
+                        <td>${s.losses}</td>
+                        <td><span class="win-rate ${winRateClass}">${s.winRate}%</span></td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        // 渲染比赛记录
+        function renderMatches() {
+            const tbody = document.getElementById('matchesTable');
+            
+            if (matches.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" class="empty-state">暂无比赛记录</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = matches.map(m => `
+                <tr>
+                    <td>${m.time}</td>
+                    <td>${m.gameType}</td>
+                    <td>${m.playerA}</td>
+                    <td>${m.playerB}</td>
+                    <td><span class="winner-tag">${m.winner}</span></td>
+                    <td><button class="btn btn-danger" onclick="deleteMatch(${m.id})">删除</button></td>
+                </tr>
+            `).join('');
+        }
+
+        // 渲染统计卡片
+        function renderStats() {
+            const stats = calculateStats();
+            const totalMatches = matches.length;
+            const totalPlayers = players.length;
+            const activePlayers = stats.length;
+            
+            let maxWinsPlayer = '-';
+            let maxWinRate = 0;
+            stats.forEach(s => {
+                if (s.wins > maxWinRate) {
+                    maxWinRate = s.wins;
+                    maxWinsPlayer = s.name;
+                }
+            });
+
+            document.getElementById('statsCards').innerHTML = `
+                <div class="stat-card">
+                    <h3>${totalMatches}</h3>
+                    <p>总比赛场次</p>
+                </div>
+                <div class="stat-card">
+                    <h3>${totalPlayers}</h3>
+                    <p>注册选手数</p>
+                </div>
+                <div class="stat-card">
+                    <h3>${activePlayers}</h3>
+                    <p>活跃选手数</p>
+                </div>
+                <div class="stat-card">
+                    <h3>${maxWinsPlayer}</h3>
+                    <p>最多胜场</p>
+                </div>
+            `;
+        }
+
+        // 保存数据到本地存储
+        function saveData() {
+            localStorage.setItem('billiardPlayers', JSON.stringify(players));
+            localStorage.setItem('billiardMatches', JSON.stringify(matches));
+        }
+
+        // 页面加载时初始化
+        init();
+    </script>
+</body>
+</html>
